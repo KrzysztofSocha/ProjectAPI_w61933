@@ -28,6 +28,7 @@ namespace KrzysztofSochaAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllers();
             services.AddRazorPages();
             services.AddDbContext<ProjectDbContext>
                 (options => options.UseSqlServer(Configuration.GetConnectionString("ProjectDbConnection")));
@@ -35,6 +36,8 @@ namespace KrzysztofSochaAPI
             services.AddAutoMapper(this.GetType().Assembly);
             services.AddScoped<IUserAppService, UserAppService>();
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+            services.AddSwaggerGen();
+           
 
         }
 
@@ -55,7 +58,11 @@ namespace KrzysztofSochaAPI
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Krzysztof Socha API");
+            });
             app.UseRouting();
 
             app.UseAuthorization();
@@ -63,6 +70,7 @@ namespace KrzysztofSochaAPI
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
+                endpoints.MapControllers();
             });
         }
     }
