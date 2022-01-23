@@ -9,5 +9,6 @@ namespace KrzysztofSochaAPI.Services.User
     public interface IUserAppService
     {
         void RegisterUser(RegisterUserDto input);
+        string GenerateJwt(LoginUserDto input);
     }
 }

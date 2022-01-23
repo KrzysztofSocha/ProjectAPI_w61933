@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
+
 
 namespace KrzysztofSochaAPI.Controllers
 {
@@ -21,8 +23,34 @@ namespace KrzysztofSochaAPI.Controllers
         [HttpPost("register")]
         public ActionResult RegisterUser([FromBody] RegisterUserDto input)
         {
-            _userAppService.RegisterUser(input);
-            return Ok();
+            try
+            {
+                _userAppService.RegisterUser(input);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                throw new (ex.Message);
+                
+            }
+           
+        }
+        [HttpPost("login")]
+        public ActionResult Login([FromBody] LoginUserDto input)
+        {
+            
+            try
+            {
+                string token = _userAppService.GenerateJwt(input);
+                return Ok(token);
+            }
+            catch (Exception ex)
+            {
+                throw new(ex.Message);
+
+            }
+
         }
     }
 }
+

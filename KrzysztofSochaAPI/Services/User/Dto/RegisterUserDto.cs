@@ -9,18 +9,18 @@ namespace KrzysztofSochaAPI.Services.User.Dto
 {
     public class RegisterUserDto
     {
-        [Required]
+        
         public string Name { get; set; }
-        [Required]
+       
         public string Surname { get; set; }
-        [Required]
-        [MinLength(7)]
+        
         public string CreatePassword { get; set; }
-        [Required]
-        [EmailAddress]
+            
+        public string ConfrimPassword { get; set; }
+       
         public string Email { get; set; }
         public string Phone { get; set; }
-        [Required]
+       
         public DateTime DateOfBirth { get; set; }
         public AddressDto Address { get; set; }
     }

@@ -12,11 +12,12 @@ namespace KrzysztofSochaAPI.Services.Address.Dto
         public string City { get; set; }
         [MaxLength(50)]
         public string Street { get; set; }
-        [MaxLength(6)]
-        public string PostalCode { get; set; }
+       
         [MaxLength(5)]
         public string HouseNumber { get; set; }
         [MaxLength(5)]
-        public string? ApartamentNumber { get; set; }
+        public string ApartamentNumber { get; set; }
+        [MaxLength(6)]
+        public string PostalCode { get; set; }
     }
 }

@@ -18,6 +18,6 @@ namespace KrzysztofSochaAPI.Models
         [MaxLength(5)]
         public string HouseNumber { get; set; }
         [MaxLength(5)]
-        public string? ApartamentNumber { get; set; }
+        public string ApartamentNumber { get; set; }
     }
 }
