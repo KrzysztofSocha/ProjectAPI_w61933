@@ -11,10 +11,13 @@ namespace KrzysztofSochaAPI.Models
 
         public int Id { get; set; }
         [Required]
+        [MaxLength(25)]
         public string Name { get; set; }
         [Required]
+        [MaxLength(25)]
         public string Surname { get; set; }
         [Required]
+        [MinLength(7)]
         public string Password { get; set; }
         [Required]
         [EmailAddress]
@@ -23,17 +26,16 @@ namespace KrzysztofSochaAPI.Models
         [Required]
         public DateTime DateOfBirth { get; set; }
         public DateTime CreationTime { get; set; }
-        public DateTime LastModificationTime { get; set; }
-        public int ModifierUserId { get; set; }
-        public virtual User Modifier { get; set; }
+        public DateTime? LastModificationTime { get; set; }
+        public int? ModifierUserId { get; set; }        
         public bool IsActive { get; set; } = true;
         public bool IsDeleted { get; set; } = false;
-        public int DeletorUserId { get; set; }
-      
         public DateTime? DeletionTime { get; set; }
-        public int AddressId { get; set; }
+        public int? DeletorUserId { get; set; }     
+        
+        public int? AddressId { get; set; }
         public virtual Address Address {get; set;}
-        public int RoleId { get; set; }
+        public int RoleId { get; set; } = 1;
         public virtual Role Role { get; set; }
 
     }

@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KrzysztofSochaAPI.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    [Migration("20220122160037_initializeUserEntities")]
-    partial class initializeUserEntities
+    [Migration("20220123135328_ChangeUserTable")]
+    partial class ChangeUserTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -29,19 +29,24 @@ namespace KrzysztofSochaAPI.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("ApartamentNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
 
                     b.Property<string>("City")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("HouseNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
 
                     b.Property<string>("PostalCode")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)");
 
                     b.Property<string>("Street")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
@@ -82,7 +87,7 @@ namespace KrzysztofSochaAPI.Migrations
                     b.Property<DateTime?>("DeletionTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("DeletorUserId")
+                    b.Property<int?>("DeletorUserId")
                         .HasColumnType("int");
 
                     b.Property<string>("Email")
@@ -95,18 +100,16 @@ namespace KrzysztofSochaAPI.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("LastModificationTime")
+                    b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("ModifierId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ModifierUserId")
+                    b.Property<int?>("ModifierUserId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(25)
+                        .HasColumnType("nvarchar(25)");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -120,13 +123,12 @@ namespace KrzysztofSochaAPI.Migrations
 
                     b.Property<string>("Surname")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(25)
+                        .HasColumnType("nvarchar(25)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AddressId");
-
-                    b.HasIndex("ModifierId");
 
                     b.HasIndex("RoleId");
 
@@ -141,10 +143,6 @@ namespace KrzysztofSochaAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("KrzysztofSochaAPI.Models.User", "Modifier")
-                        .WithMany()
-                        .HasForeignKey("ModifierId");
-
                     b.HasOne("KrzysztofSochaAPI.Models.Role", "Role")
                         .WithMany()
                         .HasForeignKey("RoleId")
@@ -152,8 +150,6 @@ namespace KrzysztofSochaAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Address");
-
-                    b.Navigation("Modifier");
 
                     b.Navigation("Role");
                 });

@@ -1,7 +1,10 @@
 using KrzysztofSochaAPI.Context;
+using KrzysztofSochaAPI.Models;
+using KrzysztofSochaAPI.Services.User;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +32,9 @@ namespace KrzysztofSochaAPI
             services.AddDbContext<ProjectDbContext>
                 (options => options.UseSqlServer(Configuration.GetConnectionString("ProjectDbConnection")));
             services.AddScoped<ProjectSeeder>();
+            services.AddAutoMapper(this.GetType().Assembly);
+            services.AddScoped<IUserAppService, UserAppService>();
+            services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
         }
 

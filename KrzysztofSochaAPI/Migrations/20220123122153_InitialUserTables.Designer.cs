@@ -4,14 +4,16 @@ using KrzysztofSochaAPI.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace KrzysztofSochaAPI.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    partial class ProjectDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220123122153_InitialUserTables")]
+    partial class InitialUserTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -73,7 +75,7 @@ namespace KrzysztofSochaAPI.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("AddressId")
+                    b.Property<int>("AddressId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreationTime")
@@ -85,7 +87,7 @@ namespace KrzysztofSochaAPI.Migrations
                     b.Property<DateTime?>("DeletionTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DeletorUserId")
+                    b.Property<int>("DeletorUserId")
                         .HasColumnType("int");
 
                     b.Property<string>("Email")
@@ -98,10 +100,10 @@ namespace KrzysztofSochaAPI.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("LastModificationTime")
+                    b.Property<DateTime>("LastModificationTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("ModifierUserId")
+                    b.Property<int>("ModifierUserId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -137,7 +139,9 @@ namespace KrzysztofSochaAPI.Migrations
                 {
                     b.HasOne("KrzysztofSochaAPI.Models.Address", "Address")
                         .WithMany()
-                        .HasForeignKey("AddressId");
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("KrzysztofSochaAPI.Models.Role", "Role")
                         .WithMany()

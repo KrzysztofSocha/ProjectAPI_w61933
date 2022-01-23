@@ -4,11 +4,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace KrzysztofSochaAPI.Models
+namespace KrzysztofSochaAPI.Services.Address.Dto
 {
-    public class Address
+    public class AddressDto
     {
-        public int Id { get; set; }
         [MaxLength(50)]
         public string City { get; set; }
         [MaxLength(50)]
