@@ -11,6 +11,9 @@ namespace KrzysztofSochaAPI.Services.User.Dto
         public UserMapProfile()
         {
             CreateMap<RegisterUserDto, KrzysztofSochaAPI.Models.User>();
+            CreateMap<UpdateUserDto, KrzysztofSochaAPI.Models.User>();
+            CreateMap< KrzysztofSochaAPI.Models.User,GetUserDto>();
+
         }
     }
 }

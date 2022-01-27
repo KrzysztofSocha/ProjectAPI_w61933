@@ -11,6 +11,7 @@ namespace KrzysztofSochaAPI.Services.Address.Dto
         public AddressMapProfile()
         {
             CreateMap<AddressDto, KrzysztofSochaAPI.Models.Address>();
+            CreateMap<Models.Address, AddressDto>();
         }
     }
 }

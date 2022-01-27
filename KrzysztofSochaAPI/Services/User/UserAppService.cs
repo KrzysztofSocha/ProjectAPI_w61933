@@ -60,7 +60,7 @@ namespace KrzysztofSochaAPI.Services.User
         {
             var user = _context.Users
                 .Include(u => u.Role)
-                .FirstOrDefault(u => u.Email == input.Email);
+                .FirstOrDefault(u => u.Email == input.Email && u.IsDeleted ==false);
 
             if (user is null)
             {
@@ -96,6 +96,101 @@ namespace KrzysztofSochaAPI.Services.User
             var tokenHandler = new JwtSecurityTokenHandler();
             return tokenHandler.WriteToken(token);
 
+        }
+
+        public Task<GetUserDto> UpdateUser(int id ,UpdateUserDto input)
+        {
+            try
+            {
+                var user=_context.Users.Include(x=>x.Address).Where(x=>x.Id==id &&x.IsDeleted==false).Single();
+                if (user is null)
+                    throw new Exception("Nie istnieje taki użytkownik");
+                //user = _mapper.Map<UpdateUserDto, KrzysztofSochaAPI.Models.User>(input, user);
+                user.LastModificationTime = DateTime.Now;
+                //tymczasowo 
+                //TODO aby pobierało aktualnie zalogowanego
+                user.ModifierUserId = id;
+                #region searchChanges
+                if (!string.IsNullOrEmpty(input.Name))
+                    user.Name = input.Name; 
+                if (!string.IsNullOrEmpty(input.Surname))
+                    user.Surname = input.Surname;
+                if (!string.IsNullOrEmpty(input.Email))
+                    user.Email = input.Email;
+                if (!string.IsNullOrEmpty(input.Phone))
+                    user.Phone = input.Phone;
+                if (!string.IsNullOrEmpty(input.Address.HouseNumber))
+                    user.Address.HouseNumber = input.Address.HouseNumber;
+                if (!string.IsNullOrEmpty(input.Address.ApartamentNumber))
+                    user.Address.ApartamentNumber = input.Address.ApartamentNumber;
+                if (!string.IsNullOrEmpty(input.Address.City))
+                    user.Address.City = input.Address.City;
+                if (!string.IsNullOrEmpty(input.Address.PostalCode))
+                    user.Address.PostalCode = input.Address.PostalCode;
+                if (input.DateOfBirth != DateTime.MinValue)
+                    user.DateOfBirth = input.DateOfBirth;
+                #endregion
+                //_context.Users.Update(user);
+                _context.SaveChanges();
+                var output = _mapper.Map<Models.User, GetUserDto>(user);
+                return Task.FromResult(output);
+
+
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"Błąd podczas edycji użytkownika: {ex.Message}");
+            }
+        }
+        public  Task<bool> DeleteUserAsync(int id)
+        {
+            var result = false;
+            try
+            {
+                var user =  _context.Users.FirstOrDefault(x => x.Id == id && x.IsDeleted==false);
+                if (user is null)
+                    throw new Exception("Nie istnieje taki użytkownik");
+                
+                user.DeletionTime = DateTime.Now;
+                //tymczasowo 
+                //TODO aby pobierało aktualnie zalogowanego
+                //TODO dodać logera
+                user.DeletorUserId = id;
+                user.IsDeleted = true;
+                
+                //_context.Users.Update(user);
+                _context.SaveChanges();
+                result = true;
+                return Task.FromResult(result);
+
+
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"Błąd podczas usuwania użytkownika: {ex.Message}");
+            }
+        }
+
+        public Task<bool> ResetUserPassword(ResetPasswordDto input, int adminId)
+        {
+            try
+            {               
+                var user = _context.Users.FirstOrDefault(x => x.Id == input.UserId && x.IsDeleted == false);
+                if (user is null)
+                    throw new Exception("Nie istnieje taki użytkownik");
+                user.Password= _passwordHasher.HashPassword(user, input.NewPassword);
+                user.LastModificationTime = DateTime.Now;
+                user.ModifierUserId = adminId;
+                _context.SaveChanges();
+                return Task.FromResult( true);
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"Błąd poczas restaru hasła: {ex.Message}");
+            }
         }
     }
 }
