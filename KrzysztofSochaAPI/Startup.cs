@@ -1,10 +1,12 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using KrzysztofSochaAPI.Authorization;
 using KrzysztofSochaAPI.Context;
 using KrzysztofSochaAPI.Models;
 using KrzysztofSochaAPI.Services.User;
 using KrzysztofSochaAPI.Services.User.Dto;
 using KrzysztofSochaAPI.Services.User.Dto.Validators;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -53,6 +55,8 @@ namespace KrzysztofSochaAPI
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey)),
                 };
             });
+            services.AddAuthorization();
+            services.AddScoped<IAuthorizationHandler, ResourceOperationRequirementHandler>();
             services.AddControllers().AddFluentValidation();
             services.AddRazorPages();
             services.AddDbContext<ProjectDbContext>

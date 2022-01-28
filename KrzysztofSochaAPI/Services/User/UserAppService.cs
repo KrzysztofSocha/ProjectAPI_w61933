@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using KrzysztofSochaAPI.Authorization;
 using KrzysztofSochaAPI.Context;
 using KrzysztofSochaAPI.Services.User.Dto;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -20,16 +22,19 @@ namespace KrzysztofSochaAPI.Services.User
         private readonly IMapper _mapper;
         private readonly IPasswordHasher<Models.User> _passwordHasher;
         private readonly AuthenticationSettings _authenticationSettings;
+        private readonly IAuthorizationService _authorizationService;
 
         public UserAppService(ProjectDbContext context,
           IMapper mapper,
           IPasswordHasher<KrzysztofSochaAPI.Models.User> passwordHasher,
-          AuthenticationSettings authenticationSettings)
+          AuthenticationSettings authenticationSettings,
+          IAuthorizationService authorizationService)
         {
             _context = context;
             _mapper = mapper;
             _passwordHasher = passwordHasher;
             _authenticationSettings = authenticationSettings;
+            _authorizationService = authorizationService;
         }
 
         public void RegisterUser(RegisterUserDto input)
@@ -143,23 +148,28 @@ namespace KrzysztofSochaAPI.Services.User
                 throw new Exception($"Błąd podczas edycji użytkownika: {ex.Message}");
             }
         }
-        public  Task<bool> DeleteUserAsync(int id)
+        public  Task<bool> DeleteUser(int id, ClaimsPrincipal deleter, int deleterId)
         {
             var result = false;
             try
             {
-                var user =  _context.Users.FirstOrDefault(x => x.Id == id && x.IsDeleted==false);
+                var user =  _context.Users.FirstOrDefault(x => x.Id == id && x.IsDeleted==false && x.RoleId!=3);
                 if (user is null)
                     throw new Exception("Nie istnieje taki użytkownik");
-                
+                var authorizationResult=_authorizationService.AuthorizeAsync(deleter,
+                    user, 
+                    new ResourceOperationRequirement(ResourceOperation.Delete)).Result;
+                if (!authorizationResult.Succeeded)
+                {
+                    throw new Exception("Nie masz uprawnień do tej operacji.");
+                }
                 user.DeletionTime = DateTime.Now;
-                //tymczasowo 
-                //TODO aby pobierało aktualnie zalogowanego
+               
                 //TODO dodać logera
-                user.DeletorUserId = id;
+                user.DeletorUserId = deleterId;
                 user.IsDeleted = true;
                 
-                //_context.Users.Update(user);
+                
                 _context.SaveChanges();
                 result = true;
                 return Task.FromResult(result);

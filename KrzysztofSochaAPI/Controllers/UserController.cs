@@ -75,13 +75,15 @@ namespace KrzysztofSochaAPI.Controllers
 
         }
         [HttpDelete("delete/{id}")]
-        [Authorize(Roles ="Admin")]
-        public ActionResult DeleteAsync([FromRoute] int id)
+       
+        public ActionResult Delete([FromRoute] int id)
         {
 
             try
             {
-                var result =_userAppService.DeleteUserAsync(id).Result;
+                
+                var userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
+                var result =_userAppService.DeleteUser(id,User,userId).Result;
                
                 return Ok(result);               
 
