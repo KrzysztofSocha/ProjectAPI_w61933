@@ -2,10 +2,12 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using KrzysztofSochaAPI.Authorization;
 using KrzysztofSochaAPI.Context;
+using KrzysztofSochaAPI.Middleware;
 using KrzysztofSochaAPI.Models;
 using KrzysztofSochaAPI.Services.User;
 using KrzysztofSochaAPI.Services.User.Dto;
 using KrzysztofSochaAPI.Services.User.Dto.Validators;
+using KrzysztofSochaAPI.Services.UserContext;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -64,9 +66,12 @@ namespace KrzysztofSochaAPI
             services.AddScoped<ProjectSeeder>();
             services.AddAutoMapper(this.GetType().Assembly);
             services.AddScoped<IUserAppService, UserAppService>();
+            services.AddScoped<ErrorHandlingMiddleware>();
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
             services.AddScoped<IValidator<ResetPasswordDto>, ResetPasswordDtoValidator>();
+            services.AddScoped<IUserContextAppService, UserContextAppService>();
+            services.AddHttpContextAccessor();
             services.AddSwaggerGen();
            
            
@@ -87,7 +92,7 @@ namespace KrzysztofSochaAPI
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
+            app.UseMiddleware<ErrorHandlingMiddleware>();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseAuthentication();

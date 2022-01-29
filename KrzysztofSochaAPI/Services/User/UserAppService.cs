@@ -1,18 +1,24 @@
 ﻿using AutoMapper;
 using KrzysztofSochaAPI.Authorization;
 using KrzysztofSochaAPI.Context;
+using KrzysztofSochaAPI.Exceptions;
 using KrzysztofSochaAPI.Services.User.Dto;
+using KrzysztofSochaAPI.Services.UserContext;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+
 
 namespace KrzysztofSochaAPI.Services.User
 {
@@ -23,31 +29,31 @@ namespace KrzysztofSochaAPI.Services.User
         private readonly IPasswordHasher<Models.User> _passwordHasher;
         private readonly AuthenticationSettings _authenticationSettings;
         private readonly IAuthorizationService _authorizationService;
-
+        private readonly IUserContextAppService _userContextAppService;
+        private readonly ILogger<UserAppService> _logger;
+        
         public UserAppService(ProjectDbContext context,
           IMapper mapper,
-          IPasswordHasher<KrzysztofSochaAPI.Models.User> passwordHasher,
+          IPasswordHasher<Models.User> passwordHasher,
           AuthenticationSettings authenticationSettings,
-          IAuthorizationService authorizationService)
+          IAuthorizationService authorizationService,
+          IUserContextAppService userContextAppService,
+          ILogger<UserAppService> logger)
         {
             _context = context;
             _mapper = mapper;
             _passwordHasher = passwordHasher;
             _authenticationSettings = authenticationSettings;
             _authorizationService = authorizationService;
+            _userContextAppService = userContextAppService;
+            _logger = logger;
         }
 
         public void RegisterUser(RegisterUserDto input)
         {
             try
-            {
-                //var checkEmail = _context.Users.FirstOrDefault(x => x.Email == input.Email);
-                //if(checkEmail is not null)                
-                //    throw new Exception($"Użytkownik o podanym mailu jest już zarejstrowany.");
-                
-                //if(input.CreatePassword != input.ConfrimPassword)
-                //    throw new Exception($"Podane hasła różnią się.");
-                var newUser = _mapper.Map<RegisterUserDto, KrzysztofSochaAPI.Models.User>(input);
+            {                
+                var newUser = _mapper.Map<RegisterUserDto, Models.User>(input);
                 newUser.CreationTime = DateTime.Now;
                 newUser.Password = _passwordHasher.HashPassword(newUser, input.CreatePassword);
                 _context.Users.Add(newUser);
@@ -103,21 +109,28 @@ namespace KrzysztofSochaAPI.Services.User
 
         }
 
-        public Task<GetUserDto> UpdateUser(int id ,UpdateUserDto input)
+        public async Task<GetUserDto> UpdateUserAsync(int id, UpdateUserDto input)
         {
+
+            var user = _context.Users.Include(x => x.Address).Where(x => x.Id == id && x.IsDeleted == false).Single();
+            if (user is null)
+                throw new NotFoundException("Nie istnieje taki użytkownik");
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(_userContextAppService.User,
+               user,
+               new ResourceOperationRequirement(ResourceOperation.Delete));
+            if (!authorizationResult.Succeeded)
+            {
+                throw new ForbiddenException("Nie masz uprawnień do tej operacji.");
+            }
+
             try
             {
-                var user=_context.Users.Include(x=>x.Address).Where(x=>x.Id==id &&x.IsDeleted==false).Single();
-                if (user is null)
-                    throw new Exception("Nie istnieje taki użytkownik");
-                //user = _mapper.Map<UpdateUserDto, KrzysztofSochaAPI.Models.User>(input, user);
                 user.LastModificationTime = DateTime.Now;
-                //tymczasowo 
-                //TODO aby pobierało aktualnie zalogowanego
-                user.ModifierUserId = id;
+                user.ModifierUserId = _userContextAppService.GetUserId;
                 #region searchChanges
                 if (!string.IsNullOrEmpty(input.Name))
-                    user.Name = input.Name; 
+                    user.Name = input.Name;
                 if (!string.IsNullOrEmpty(input.Surname))
                     user.Surname = input.Surname;
                 if (!string.IsNullOrEmpty(input.Email))
@@ -135,10 +148,11 @@ namespace KrzysztofSochaAPI.Services.User
                 if (input.DateOfBirth != DateTime.MinValue)
                     user.DateOfBirth = input.DateOfBirth;
                 #endregion
-                //_context.Users.Update(user);
+
                 _context.SaveChanges();
+                _logger.LogWarning($"Użytkownik o numerze Id: {_userContextAppService.GetUserId} pomyślnie edytował dane użytkownika o indyfikatorze: {id}");
                 var output = _mapper.Map<Models.User, GetUserDto>(user);
-                return Task.FromResult(output);
+                return output;
 
 
             }
@@ -148,32 +162,35 @@ namespace KrzysztofSochaAPI.Services.User
                 throw new Exception($"Błąd podczas edycji użytkownika: {ex.Message}");
             }
         }
-        public  Task<bool> DeleteUser(int id, ClaimsPrincipal deleter, int deleterId)
+        public async Task<bool> DeleteUserAsync(int id)
         {
             var result = false;
+
+            var user = _context.Users.FirstOrDefault(x => x.Id == id && x.IsDeleted == false && x.RoleId != 3);
+            if (user is null)
+                throw new NotFoundException("Nie istnieje taki użytkownik");
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(_userContextAppService.User,
+                user,
+                new ResourceOperationRequirement(ResourceOperation.Delete));
+            if (!authorizationResult.Succeeded)
+            {
+                _logger.LogWarning($"Użytkownik o numerze Id: {_userContextAppService.GetUserId} próbował usunąć użytkownika o indyfikatorze: {id}");
+
+                throw new ForbiddenException("Nie masz uprawnień do tej operacji.");
+            }
             try
             {
-                var user =  _context.Users.FirstOrDefault(x => x.Id == id && x.IsDeleted==false && x.RoleId!=3);
-                if (user is null)
-                    throw new Exception("Nie istnieje taki użytkownik");
-                var authorizationResult=_authorizationService.AuthorizeAsync(deleter,
-                    user, 
-                    new ResourceOperationRequirement(ResourceOperation.Delete)).Result;
-                if (!authorizationResult.Succeeded)
-                {
-                    throw new Exception("Nie masz uprawnień do tej operacji.");
-                }
                 user.DeletionTime = DateTime.Now;
-               
-                //TODO dodać logera
-                user.DeletorUserId = deleterId;
+                user.DeletorUserId = _userContextAppService.GetUserId;
                 user.IsDeleted = true;
-                
-                
-                _context.SaveChanges();
-                result = true;
-                return Task.FromResult(result);
 
+                
+
+                _context.SaveChanges();
+                _logger.LogWarning($"Użytkownik o numerze Id: {_userContextAppService.GetUserId} pomyślnie usunął użytkownika o indyfikatorze: {id}");
+                result = true;
+                return result;
 
             }
             catch (Exception ex)
@@ -185,16 +202,18 @@ namespace KrzysztofSochaAPI.Services.User
 
         public Task<bool> ResetUserPassword(ResetPasswordDto input, int adminId)
         {
+
+            var user = _context.Users.FirstOrDefault(x => x.Id == input.UserId && x.IsDeleted == false);
+            if (user is null)
+                throw new NotFoundException("Nie istnieje taki użytkownik");
             try
-            {               
-                var user = _context.Users.FirstOrDefault(x => x.Id == input.UserId && x.IsDeleted == false);
-                if (user is null)
-                    throw new Exception("Nie istnieje taki użytkownik");
-                user.Password= _passwordHasher.HashPassword(user, input.NewPassword);
+            {
+                user.Password = _passwordHasher.HashPassword(user, input.NewPassword);
                 user.LastModificationTime = DateTime.Now;
                 user.ModifierUserId = adminId;
                 _context.SaveChanges();
-                return Task.FromResult( true);
+                _logger.LogWarning($"Hasło użytkownika o numerze Id: {_userContextAppService.GetUserId} zostało pomyślnie zmienione");
+                return Task.FromResult(true);
             }
             catch (Exception ex)
             {

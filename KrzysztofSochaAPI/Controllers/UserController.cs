@@ -58,13 +58,13 @@ namespace KrzysztofSochaAPI.Controllers
         }
         [HttpPut("update/{id}")]
         [Authorize]
-        public ActionResult Update([FromBody] UpdateUserDto input,[FromRoute] int id)
+        public async Task<ActionResult> UpdateAsync([FromBody] UpdateUserDto input,[FromRoute] int id)
         {
 
             try
             {
                 var userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
-                var output = _userAppService.UpdateUser(id,input);
+                var output = await _userAppService.UpdateUserAsync(id,input);
                 return Ok(output);
             }
             catch (Exception ex)
@@ -75,24 +75,16 @@ namespace KrzysztofSochaAPI.Controllers
 
         }
         [HttpDelete("delete/{id}")]
-       
-        public ActionResult Delete([FromRoute] int id)
+        [Authorize]
+        public async Task<ActionResult> DeleteAsync([FromRoute] int id)
         {
-
-            try
-            {
+             
                 
-                var userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
-                var result =_userAppService.DeleteUser(id,User,userId).Result;
+                var result = await _userAppService.DeleteUserAsync(id);
                
                 return Ok(result);               
 
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-                
-            }
+          
 
         }
         [HttpPut("resetpassword")]
