@@ -13,6 +13,7 @@ namespace KrzysztofSochaAPI.Services.User
         string GenerateJwt(LoginUserDto input);
         Task<GetUserDto> UpdateUserAsync(int id,UpdateUserDto input);
         Task<bool> DeleteUserAsync(int id);
-        Task<bool> ResetUserPassword(ResetPasswordDto input, int adminId);
+        Task<bool> ResetUserPassword(ResetPasswordDto input);
+        Task<bool> ChangeUserPassword(ChangePasswordDto input);
     }
 }

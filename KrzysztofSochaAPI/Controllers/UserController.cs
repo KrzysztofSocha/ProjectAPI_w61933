@@ -90,21 +90,21 @@ namespace KrzysztofSochaAPI.Controllers
         [HttpPut("resetpassword")]
         [Authorize(Roles = "Admin")]
         public ActionResult ResetPassword([FromBody] ResetPasswordDto input)
+        {           
+               
+                var result = _userAppService.ResetUserPassword(input).Result;
+
+                return Ok(result);          
+
+        }
+        [HttpPut("changepassword")]
+        [Authorize]
+        public ActionResult ChangePassword([FromBody] ChangePasswordDto input)
         {
 
-            try
-            {
-                var userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
-                var result = _userAppService.ResetUserPassword(input, userId).Result;
+            var result = _userAppService.ChangeUserPassword(input).Result;
 
-                return Ok(result);
-
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-
-            }
+            return Ok(result);
 
         }
     }

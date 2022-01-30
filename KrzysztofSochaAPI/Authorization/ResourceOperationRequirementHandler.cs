@@ -10,7 +10,8 @@ namespace KrzysztofSochaAPI.Authorization
 {
     public class ResourceOperationRequirementHandler : AuthorizationHandler<ResourceOperationRequirement, User>
     {
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ResourceOperationRequirement requirement,
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, 
+            ResourceOperationRequirement requirement,
             User user)
         {
             if (requirement.ResourceOperation == ResourceOperation.Read ||

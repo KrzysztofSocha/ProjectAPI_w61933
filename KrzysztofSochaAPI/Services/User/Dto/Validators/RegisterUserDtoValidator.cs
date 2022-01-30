@@ -20,7 +20,8 @@ namespace KrzysztofSochaAPI.Services.User.Dto.Validators
 
             RuleFor(x => x.CreatePassword).MinimumLength(7);
 
-            RuleFor(x => x.ConfrimPassword).Equal(e => e.CreatePassword);
+            RuleFor(x => x.ConfrimPassword).Equal(e => e.CreatePassword).WithMessage("Podane hasła różnią się od siebie");
+           
 
             RuleFor(x => x.Email)
                 .Custom((value, context) =>

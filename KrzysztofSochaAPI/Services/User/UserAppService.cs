@@ -13,8 +13,6 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -200,7 +198,7 @@ namespace KrzysztofSochaAPI.Services.User
             }
         }
 
-        public Task<bool> ResetUserPassword(ResetPasswordDto input, int adminId)
+        public Task<bool> ResetUserPassword(ResetPasswordDto input)
         {
 
             var user = _context.Users.FirstOrDefault(x => x.Id == input.UserId && x.IsDeleted == false);
@@ -210,7 +208,33 @@ namespace KrzysztofSochaAPI.Services.User
             {
                 user.Password = _passwordHasher.HashPassword(user, input.NewPassword);
                 user.LastModificationTime = DateTime.Now;
-                user.ModifierUserId = adminId;
+                user.ModifierUserId = _userContextAppService.GetUserId;
+                _context.SaveChanges();
+                _logger.LogWarning($"Hasło użytkownika o numerze Id: {input.UserId} zostało pomyślnie zmienione");
+                return Task.FromResult(true);
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"Błąd poczas restaru hasła: {ex.Message}");
+            }
+        }
+
+        public Task<bool> ChangeUserPassword(ChangePasswordDto input)
+        {
+            var user = _context.Users.FirstOrDefault(x => x.Id == _userContextAppService.GetUserId
+            && x.IsDeleted == false);
+
+            if (user is null)
+                throw new NotFoundException("Nie istnieje taki użytkownik");
+            var IsActualPassword= _passwordHasher.VerifyHashedPassword(user, user.Password,input.ActualPassword);
+            if (IsActualPassword==PasswordVerificationResult.Failed)
+                throw new Exception("Niepoprawne hasło");
+            try
+            {
+                user.Password = _passwordHasher.HashPassword(user, input.NewPassword);
+                user.LastModificationTime = DateTime.Now;
+                user.ModifierUserId = _userContextAppService.GetUserId;
                 _context.SaveChanges();
                 _logger.LogWarning($"Hasło użytkownika o numerze Id: {_userContextAppService.GetUserId} zostało pomyślnie zmienione");
                 return Task.FromResult(true);
@@ -218,7 +242,7 @@ namespace KrzysztofSochaAPI.Services.User
             catch (Exception ex)
             {
 
-                throw new Exception($"Błąd poczas restaru hasła: {ex.Message}");
+                throw new Exception($"Błąd poczas zmiany hasła: {ex.Message}");
             }
         }
     }

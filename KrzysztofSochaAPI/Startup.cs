@@ -70,6 +70,7 @@ namespace KrzysztofSochaAPI
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
             services.AddScoped<IValidator<ResetPasswordDto>, ResetPasswordDtoValidator>();
+            services.AddScoped<IValidator<ChangePasswordDto>, ChangePasswordDtoValidator>();
             services.AddScoped<IUserContextAppService, UserContextAppService>();
             services.AddHttpContextAccessor();
             services.AddSwaggerGen();
