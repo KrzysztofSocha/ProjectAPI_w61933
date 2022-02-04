@@ -4,35 +4,22 @@ using KrzysztofSochaAPI.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace KrzysztofSochaAPI.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    partial class ProjectDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220203212506_AddClothesTable")]
+    partial class AddClothesTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.13")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("ClothesOrder", b =>
-                {
-                    b.Property<int>("OrderedClothesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("OrdersId")
-                        .HasColumnType("int");
-
-                    b.HasKey("OrderedClothesId", "OrdersId");
-
-                    b.HasIndex("OrdersId");
-
-                    b.ToTable("OrderedClothes");
-                });
 
             modelBuilder.Entity("KrzysztofSochaAPI.Models.Address", b =>
                 {
@@ -116,47 +103,6 @@ namespace KrzysztofSochaAPI.Migrations
                     b.ToTable("Images");
                 });
 
-            modelBuilder.Entity("KrzysztofSochaAPI.Models.Order", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<decimal>("ClothesAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("DeliveryAddressId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("DeliveryPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("DeliveryType")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PurchaserId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("ReceivedTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DeliveryAddressId")
-                        .IsUnique();
-
-                    b.HasIndex("PurchaserId");
-
-                    b.ToTable("Orders");
-                });
-
             modelBuilder.Entity("KrzysztofSochaAPI.Models.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -170,33 +116,6 @@ namespace KrzysztofSochaAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
-                });
-
-            modelBuilder.Entity("KrzysztofSochaAPI.Models.Shop", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("AddressId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ManagerId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AddressId")
-                        .IsUnique();
-
-                    b.HasIndex("ManagerId")
-                        .IsUnique();
-
-                    b.ToTable("Shops");
                 });
 
             modelBuilder.Entity("KrzysztofSochaAPI.Models.User", b =>
@@ -262,28 +181,11 @@ namespace KrzysztofSochaAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AddressId")
-                        .IsUnique()
-                        .HasFilter("[AddressId] IS NOT NULL");
+                    b.HasIndex("AddressId");
 
                     b.HasIndex("RoleId");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("ClothesOrder", b =>
-                {
-                    b.HasOne("KrzysztofSochaAPI.Models.Clothes", null)
-                        .WithMany()
-                        .HasForeignKey("OrderedClothesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("KrzysztofSochaAPI.Models.Order", null)
-                        .WithMany()
-                        .HasForeignKey("OrdersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("KrzysztofSochaAPI.Models.Image", b =>
@@ -297,49 +199,11 @@ namespace KrzysztofSochaAPI.Migrations
                     b.Navigation("Clothes");
                 });
 
-            modelBuilder.Entity("KrzysztofSochaAPI.Models.Order", b =>
-                {
-                    b.HasOne("KrzysztofSochaAPI.Models.Address", "DeliveryAddress")
-                        .WithOne("Order")
-                        .HasForeignKey("KrzysztofSochaAPI.Models.Order", "DeliveryAddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("KrzysztofSochaAPI.Models.User", "Purchaser")
-                        .WithMany()
-                        .HasForeignKey("PurchaserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DeliveryAddress");
-
-                    b.Navigation("Purchaser");
-                });
-
-            modelBuilder.Entity("KrzysztofSochaAPI.Models.Shop", b =>
-                {
-                    b.HasOne("KrzysztofSochaAPI.Models.Address", "Address")
-                        .WithOne("Shop")
-                        .HasForeignKey("KrzysztofSochaAPI.Models.Shop", "AddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("KrzysztofSochaAPI.Models.User", "Manager")
-                        .WithOne("Shop")
-                        .HasForeignKey("KrzysztofSochaAPI.Models.Shop", "ManagerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Address");
-
-                    b.Navigation("Manager");
-                });
-
             modelBuilder.Entity("KrzysztofSochaAPI.Models.User", b =>
                 {
                     b.HasOne("KrzysztofSochaAPI.Models.Address", "Address")
-                        .WithOne("User")
-                        .HasForeignKey("KrzysztofSochaAPI.Models.User", "AddressId");
+                        .WithMany()
+                        .HasForeignKey("AddressId");
 
                     b.HasOne("KrzysztofSochaAPI.Models.Role", "Role")
                         .WithMany()
@@ -352,23 +216,9 @@ namespace KrzysztofSochaAPI.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("KrzysztofSochaAPI.Models.Address", b =>
-                {
-                    b.Navigation("Order");
-
-                    b.Navigation("Shop");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("KrzysztofSochaAPI.Models.Clothes", b =>
                 {
                     b.Navigation("Images");
-                });
-
-            modelBuilder.Entity("KrzysztofSochaAPI.Models.User", b =>
-                {
-                    b.Navigation("Shop");
                 });
 #pragma warning restore 612, 618
         }

@@ -4,14 +4,16 @@ using KrzysztofSochaAPI.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace KrzysztofSochaAPI.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    partial class ProjectDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220204220640_ChangeRelationOrder")]
+    partial class ChangeRelationOrder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -149,8 +151,7 @@ namespace KrzysztofSochaAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DeliveryAddressId")
-                        .IsUnique();
+                    b.HasIndex("DeliveryAddressId");
 
                     b.HasIndex("PurchaserId");
 
@@ -190,11 +191,9 @@ namespace KrzysztofSochaAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AddressId")
-                        .IsUnique();
+                    b.HasIndex("AddressId");
 
-                    b.HasIndex("ManagerId")
-                        .IsUnique();
+                    b.HasIndex("ManagerId");
 
                     b.ToTable("Shops");
                 });
@@ -300,8 +299,8 @@ namespace KrzysztofSochaAPI.Migrations
             modelBuilder.Entity("KrzysztofSochaAPI.Models.Order", b =>
                 {
                     b.HasOne("KrzysztofSochaAPI.Models.Address", "DeliveryAddress")
-                        .WithOne("Order")
-                        .HasForeignKey("KrzysztofSochaAPI.Models.Order", "DeliveryAddressId")
+                        .WithMany()
+                        .HasForeignKey("DeliveryAddressId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -319,14 +318,14 @@ namespace KrzysztofSochaAPI.Migrations
             modelBuilder.Entity("KrzysztofSochaAPI.Models.Shop", b =>
                 {
                     b.HasOne("KrzysztofSochaAPI.Models.Address", "Address")
-                        .WithOne("Shop")
-                        .HasForeignKey("KrzysztofSochaAPI.Models.Shop", "AddressId")
+                        .WithMany()
+                        .HasForeignKey("AddressId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("KrzysztofSochaAPI.Models.User", "Manager")
-                        .WithOne("Shop")
-                        .HasForeignKey("KrzysztofSochaAPI.Models.Shop", "ManagerId")
+                        .WithMany()
+                        .HasForeignKey("ManagerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -354,21 +353,12 @@ namespace KrzysztofSochaAPI.Migrations
 
             modelBuilder.Entity("KrzysztofSochaAPI.Models.Address", b =>
                 {
-                    b.Navigation("Order");
-
-                    b.Navigation("Shop");
-
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("KrzysztofSochaAPI.Models.Clothes", b =>
                 {
                     b.Navigation("Images");
-                });
-
-            modelBuilder.Entity("KrzysztofSochaAPI.Models.User", b =>
-                {
-                    b.Navigation("Shop");
                 });
 #pragma warning restore 612, 618
         }

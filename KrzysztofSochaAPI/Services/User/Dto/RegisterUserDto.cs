@@ -1,4 +1,5 @@
-﻿using KrzysztofSochaAPI.Services.Address.Dto;
+﻿using KrzysztofSochaAPI.Enums;
+using KrzysztofSochaAPI.Services.Address.Dto;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -13,7 +14,8 @@ namespace KrzysztofSochaAPI.Services.User.Dto
         public string Name { get; set; }
        
         public string Surname { get; set; }
-        
+        public SexType Sex { get; set; }
+
         public string CreatePassword { get; set; }
             
         public string ConfrimPassword { get; set; }

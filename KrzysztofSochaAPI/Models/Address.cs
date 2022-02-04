@@ -19,5 +19,10 @@ namespace KrzysztofSochaAPI.Models
         public string HouseNumber { get; set; }
         [MaxLength(5)]
         public string ApartamentNumber { get; set; }
+        public virtual User User { get; set; }
+        public virtual Order Order { get; set; }
+        public virtual Shop Shop { get; set; }
+
+       
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KrzysztofSochaAPI.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -31,12 +32,15 @@ namespace KrzysztofSochaAPI.Models
         public bool IsActive { get; set; } = true;
         public bool IsDeleted { get; set; } = false;
         public DateTime? DeletionTime { get; set; }
-        public int? DeletorUserId { get; set; }     
-        
+        public int? DeleterUserId { get; set; }
+        public SexType Sex { get; set; }
+
         public int? AddressId { get; set; }
         public virtual Address Address {get; set;}
         public int RoleId { get; set; } = 1;
         public virtual Role Role { get; set; }
-
+        public virtual Shop Shop { get; set; }
+        
+        
     }
 }

@@ -180,10 +180,9 @@ namespace KrzysztofSochaAPI.Services.User
             try
             {
                 user.DeletionTime = DateTime.Now;
-                user.DeletorUserId = _userContextAppService.GetUserId;
+                user.DeleterUserId = _userContextAppService.GetUserId;
                 user.IsDeleted = true;
-
-                
+                user.IsActive = false;               
 
                 _context.SaveChanges();
                 _logger.LogWarning($"Użytkownik o numerze Id: {_userContextAppService.GetUserId} pomyślnie usunął użytkownika o indyfikatorze: {id}");
@@ -210,7 +209,7 @@ namespace KrzysztofSochaAPI.Services.User
                 user.LastModificationTime = DateTime.Now;
                 user.ModifierUserId = _userContextAppService.GetUserId;
                 _context.SaveChanges();
-                _logger.LogWarning($"Hasło użytkownika o numerze Id: {input.UserId} zostało pomyślnie zmienione");
+                _logger.LogWarning($"Hasło użytkownika o numerze Id: {input.UserId} zostało pomyślnie zmienione przez administratora");
                 return Task.FromResult(true);
             }
             catch (Exception ex)
