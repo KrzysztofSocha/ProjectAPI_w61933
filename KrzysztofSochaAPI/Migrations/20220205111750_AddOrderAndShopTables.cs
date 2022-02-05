@@ -44,6 +44,30 @@ namespace KrzysztofSochaAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ShoppingCartItems",
+                columns: table => new
+                {
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    ClothesId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ShoppingCartItems", x => new { x.ClothesId, x.UserId });
+                    table.ForeignKey(
+                        name: "FK_ShoppingCartItems_Clothes_ClothesId",
+                        column: x => x.ClothesId,
+                        principalTable: "Clothes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ShoppingCartItems_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Shops",
                 columns: table => new
                 {
@@ -71,7 +95,7 @@ namespace KrzysztofSochaAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "OrderedClothes",
+                name: "OrderClothes",
                 columns: table => new
                 {
                     OrderId = table.Column<int>(type: "int", nullable: false),
@@ -79,15 +103,15 @@ namespace KrzysztofSochaAPI.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OrderedClothes", x => new { x.OrderId, x.OrderedClothesId });
+                    table.PrimaryKey("PK_OrderClothes", x => new { x.OrderId, x.OrderedClothesId });
                     table.ForeignKey(
-                        name: "FK_OrderedClothes_Clothes_OrderedClothesId",
+                        name: "FK_OrderClothes_Clothes_OrderedClothesId",
                         column: x => x.OrderedClothesId,
                         principalTable: "Clothes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_OrderedClothes_Orders_OrderId",
+                        name: "FK_OrderClothes_Orders_OrderId",
                         column: x => x.OrderId,
                         principalTable: "Orders",
                         principalColumn: "Id",
@@ -102,14 +126,15 @@ namespace KrzysztofSochaAPI.Migrations
                 filter: "[AddressId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderedClothes_OrderedClothesId",
-                table: "OrderedClothes",
+                name: "IX_OrderClothes_OrderedClothesId",
+                table: "OrderClothes",
                 column: "OrderedClothesId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_DeliveryAddressId",
                 table: "Orders",
-                column: "DeliveryAddressId");
+                column: "DeliveryAddressId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_PurchaserId",
@@ -117,20 +142,30 @@ namespace KrzysztofSochaAPI.Migrations
                 column: "PurchaserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ShoppingCartItems_UserId",
+                table: "ShoppingCartItems",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Shops_AddressId",
                 table: "Shops",
-                column: "AddressId");
+                column: "AddressId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Shops_ManagerId",
                 table: "Shops",
-                column: "ManagerId");
+                column: "ManagerId",
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "OrderedClothes");
+                name: "OrderClothes");
+
+            migrationBuilder.DropTable(
+                name: "ShoppingCartItems");
 
             migrationBuilder.DropTable(
                 name: "Shops");

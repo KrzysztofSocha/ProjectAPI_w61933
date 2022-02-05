@@ -19,21 +19,6 @@ namespace KrzysztofSochaAPI.Migrations
                 .HasAnnotation("ProductVersion", "5.0.13")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("ClothesOrder", b =>
-                {
-                    b.Property<int>("OrderedClothesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("OrdersId")
-                        .HasColumnType("int");
-
-                    b.HasKey("OrderedClothesId", "OrdersId");
-
-                    b.HasIndex("OrdersId");
-
-                    b.ToTable("OrderedClothes");
-                });
-
             modelBuilder.Entity("KrzysztofSochaAPI.Models.Address", b =>
                 {
                     b.Property<int>("Id")
@@ -157,6 +142,21 @@ namespace KrzysztofSochaAPI.Migrations
                     b.ToTable("Orders");
                 });
 
+            modelBuilder.Entity("KrzysztofSochaAPI.Models.OrderClothes", b =>
+                {
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderedClothesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("OrderId", "OrderedClothesId");
+
+                    b.HasIndex("OrderedClothesId");
+
+                    b.ToTable("OrderClothes");
+                });
+
             modelBuilder.Entity("KrzysztofSochaAPI.Models.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -197,6 +197,21 @@ namespace KrzysztofSochaAPI.Migrations
                         .IsUnique();
 
                     b.ToTable("Shops");
+                });
+
+            modelBuilder.Entity("KrzysztofSochaAPI.Models.ShoppingCartItem", b =>
+                {
+                    b.Property<int>("ClothesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ClothesId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ShoppingCartItems");
                 });
 
             modelBuilder.Entity("KrzysztofSochaAPI.Models.User", b =>
@@ -271,21 +286,6 @@ namespace KrzysztofSochaAPI.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("ClothesOrder", b =>
-                {
-                    b.HasOne("KrzysztofSochaAPI.Models.Clothes", null)
-                        .WithMany()
-                        .HasForeignKey("OrderedClothesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("KrzysztofSochaAPI.Models.Order", null)
-                        .WithMany()
-                        .HasForeignKey("OrdersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("KrzysztofSochaAPI.Models.Image", b =>
                 {
                     b.HasOne("KrzysztofSochaAPI.Models.Clothes", "Clothes")
@@ -316,6 +316,25 @@ namespace KrzysztofSochaAPI.Migrations
                     b.Navigation("Purchaser");
                 });
 
+            modelBuilder.Entity("KrzysztofSochaAPI.Models.OrderClothes", b =>
+                {
+                    b.HasOne("KrzysztofSochaAPI.Models.Order", "Order")
+                        .WithMany("OrderedClothes")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("KrzysztofSochaAPI.Models.Clothes", "OrderedClothes")
+                        .WithMany("Orders")
+                        .HasForeignKey("OrderedClothesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+
+                    b.Navigation("OrderedClothes");
+                });
+
             modelBuilder.Entity("KrzysztofSochaAPI.Models.Shop", b =>
                 {
                     b.HasOne("KrzysztofSochaAPI.Models.Address", "Address")
@@ -333,6 +352,25 @@ namespace KrzysztofSochaAPI.Migrations
                     b.Navigation("Address");
 
                     b.Navigation("Manager");
+                });
+
+            modelBuilder.Entity("KrzysztofSochaAPI.Models.ShoppingCartItem", b =>
+                {
+                    b.HasOne("KrzysztofSochaAPI.Models.Clothes", "Clothes")
+                        .WithMany("UserBuyers")
+                        .HasForeignKey("ClothesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("KrzysztofSochaAPI.Models.User", "User")
+                        .WithMany("ClothesToBuy")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Clothes");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("KrzysztofSochaAPI.Models.User", b =>
@@ -364,10 +402,21 @@ namespace KrzysztofSochaAPI.Migrations
             modelBuilder.Entity("KrzysztofSochaAPI.Models.Clothes", b =>
                 {
                     b.Navigation("Images");
+
+                    b.Navigation("Orders");
+
+                    b.Navigation("UserBuyers");
+                });
+
+            modelBuilder.Entity("KrzysztofSochaAPI.Models.Order", b =>
+                {
+                    b.Navigation("OrderedClothes");
                 });
 
             modelBuilder.Entity("KrzysztofSochaAPI.Models.User", b =>
                 {
+                    b.Navigation("ClothesToBuy");
+
                     b.Navigation("Shop");
                 });
 #pragma warning restore 612, 618

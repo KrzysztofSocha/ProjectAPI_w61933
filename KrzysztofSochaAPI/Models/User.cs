@@ -41,6 +41,7 @@ namespace KrzysztofSochaAPI.Models
         public virtual Role Role { get; set; }
         public virtual Shop Shop { get; set; }
         
-        
+        public virtual List<ShoppingCartItem> ClothesToBuy { get; set; }
+       
     }
 }

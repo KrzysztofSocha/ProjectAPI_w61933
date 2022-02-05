@@ -20,27 +20,51 @@ namespace KrzysztofSochaAPI.Context
         public DbSet<Image> Images { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<Shop> Shops { get; set; }
+        public DbSet<ShoppingCartItem> ShoppingCartItems { get; set; }
+        public DbSet<OrderClothes> OrderClothes { get; set; }
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            
             modelBuilder.Entity<Order>()
-                .Property(p => p.DeliveryPrice)
+                .Property(o => o.DeliveryPrice)
                 .HasColumnType("decimal(18,2)");
 
-            base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Order>()
-                .Property(p => p.ClothesAmount)
+                .Property(o => o.ClothesAmount)
                 .HasColumnType("decimal(18,2)");
 
-            base.OnModelCreating(modelBuilder);
+            
             modelBuilder.Entity<Clothes>()
-                .Property(p => p.Price)
+                .Property(c => c.Price)
                 .HasColumnType("decimal(18,2)");
+            //Relacja wiele do wielu z użyciem encji słabej tworząca koszyk użytkownika
+            modelBuilder.Entity<ShoppingCartItem>()
+          .HasKey(sc => new { sc.ClothesId, sc.UserId });
+            modelBuilder.Entity<ShoppingCartItem>()
+                .HasOne(s => s.Clothes)
+                .WithMany(c => c.UserBuyers)
+                .HasForeignKey(sc => sc.ClothesId);
+            modelBuilder.Entity<ShoppingCartItem>()
+               .HasOne(s => s.User)
+               .WithMany(u => u.ClothesToBuy)
+               .HasForeignKey(sc => sc.UserId);
+            //Lista zamówionych ubrań
+            modelBuilder.Entity<OrderClothes>()
+            .HasKey(oc => new { oc.OrderId, oc.OrderedClothesId });
+            modelBuilder.Entity<OrderClothes>()
+                .HasOne(oc => oc.OrderedClothes)
+                .WithMany(c => c.Orders)
+                .HasForeignKey(oc => oc.OrderedClothesId);
+            modelBuilder.Entity<OrderClothes>()
+               .HasOne(oc => oc.Order)
+               .WithMany(o => o.OrderedClothes)
+               .HasForeignKey(oc => oc.OrderId);
 
-            modelBuilder.Entity<Clothes>()
-                .HasMany(c => c.Orders)
-                .WithMany(o => o.OrderedClothes)
-                .UsingEntity(o => o.ToTable("OrderedClothes"));
+
+
+
+
 
             modelBuilder.Entity<Shop>()
               .HasOne(c => c.Manager)

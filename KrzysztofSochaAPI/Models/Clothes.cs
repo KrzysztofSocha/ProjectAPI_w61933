@@ -15,7 +15,9 @@ namespace KrzysztofSochaAPI.Models
         public bool IsAvailability { get; set; }
         public decimal Price { get; set; }
         public virtual List<Image> Images { get; set; }
-        public virtual List<Order> Orders { get; set; }
+        public virtual List<OrderClothes> Orders { get; set; }
+
+        public List<ShoppingCartItem> UserBuyers { get; set; }
 
     }
 }
