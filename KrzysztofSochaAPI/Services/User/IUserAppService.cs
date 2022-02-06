@@ -10,6 +10,7 @@ namespace KrzysztofSochaAPI.Services.User
     public interface IUserAppService
     {
         void RegisterUser(RegisterUserDto input);
+        void RegisterUserManager(RegisterUserDto input);
         string GenerateJwt(LoginUserDto input);
         Task<GetUserDto> UpdateUserAsync(int id,UpdateUserDto input);
         Task<bool> DeleteUserAsync(int id);

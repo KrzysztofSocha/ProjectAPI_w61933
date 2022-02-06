@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KrzysztofSochaAPI.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,5 +12,7 @@ namespace KrzysztofSochaAPI.Models
         public virtual Order Order{ get; set; }
         public int OrderedClothesId { get; set; }
         public virtual Clothes OrderedClothes { get; set; }
+        public SizeType Size { get; set; }
+        public int Quantity { get; set; }
     }
 }

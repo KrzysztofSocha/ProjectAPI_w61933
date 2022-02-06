@@ -17,6 +17,7 @@ namespace KrzysztofSochaAPI.Services.User.Dto.Validators
             RuleFor(x => x.Name).NotEmpty();
             RuleFor(x => x.Surname).NotEmpty();
             RuleFor(x => x.DateOfBirth).NotEmpty();
+            RuleFor(x => x.Sex).NotEmpty();
 
             RuleFor(x => x.CreatePassword).MinimumLength(7);
 

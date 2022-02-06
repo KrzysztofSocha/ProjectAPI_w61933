@@ -19,93 +19,58 @@ namespace KrzysztofSochaAPI.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserAppService _userAppService;
-        
+
         public UserController(IUserAppService userAppService)
         {
             _userAppService = userAppService;
-           
+
         }
         [HttpPost("register")]
         public ActionResult RegisterUser([FromBody] RegisterUserDto input)
         {
-            try
-            {
-                _userAppService.RegisterUser(input);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                throw new (ex.Message);
-                
-            }
-           
+            _userAppService.RegisterUser(input);
+            return Ok();
+        }
+        [HttpPost("register/manager")]
+        [Authorize(Roles = "Admin")]
+        public ActionResult RegisterUserMnager([FromBody] RegisterUserDto input)
+        {
+            _userAppService.RegisterUserManager(input);
+            return Ok();
         }
         [HttpPost("login")]
         public ActionResult Login([FromBody] LoginUserDto input)
         {
-            
-            try
-            {
-                string token = _userAppService.GenerateJwt(input);
-                return Ok(token);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-
-            }
-
+            string token = _userAppService.GenerateJwt(input);
+            return Ok(token);
         }
         [HttpPut("update/{id}")]
         [Authorize]
-        public async Task<ActionResult> UpdateAsync([FromBody] UpdateUserDto input,[FromRoute] int id)
+        public async Task<ActionResult> UpdateAsync([FromBody] UpdateUserDto input, [FromRoute] int id)
         {
-
-            try
-            {
-                var userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
-                var output = await _userAppService.UpdateUserAsync(id,input);
-                return Ok(output);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-
-            }
-
+            var output = await _userAppService.UpdateUserAsync(id, input);
+            return Ok(output);
         }
         [HttpDelete("delete/{id}")]
         [Authorize]
         public async Task<ActionResult> DeleteAsync([FromRoute] int id)
         {
-             
-                
-                var result = await _userAppService.DeleteUserAsync(id);
-               
-                return Ok(result);               
-
-          
-
+            var result = await _userAppService.DeleteUserAsync(id);
+            return Ok(result);
         }
-        [HttpPut("resetpassword")]
+        [HttpPut("reset/password")]
         [Authorize(Roles = "Admin")]
         public ActionResult ResetPassword([FromBody] ResetPasswordDto input)
-        {           
-               
-                var result = _userAppService.ResetUserPassword(input).Result;
-
-                return Ok(result);          
-
+        {
+            var result = _userAppService.ResetUserPassword(input).Result;
+            return Ok(result);
         }
-        [HttpPut("changepassword")]
+        [HttpPut("change/password")]
         [Authorize]
         public ActionResult ChangePassword([FromBody] ChangePasswordDto input)
         {
-
             var result = _userAppService.ChangeUserPassword(input).Result;
-
             return Ok(result);
-
         }
     }
 }

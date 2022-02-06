@@ -4,6 +4,7 @@ using KrzysztofSochaAPI.Authorization;
 using KrzysztofSochaAPI.Context;
 using KrzysztofSochaAPI.Middleware;
 using KrzysztofSochaAPI.Models;
+using KrzysztofSochaAPI.Services.Clothes;
 using KrzysztofSochaAPI.Services.User;
 using KrzysztofSochaAPI.Services.User.Dto;
 using KrzysztofSochaAPI.Services.User.Dto.Validators;
@@ -66,6 +67,7 @@ namespace KrzysztofSochaAPI
             services.AddScoped<ProjectSeeder>();
             services.AddAutoMapper(this.GetType().Assembly);
             services.AddScoped<IUserAppService, UserAppService>();
+            services.AddScoped<IClothesAppService, ClothesAppService>();
             services.AddScoped<ErrorHandlingMiddleware>();
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();

@@ -29,7 +29,7 @@ namespace KrzysztofSochaAPI.Services.User
         private readonly IAuthorizationService _authorizationService;
         private readonly IUserContextAppService _userContextAppService;
         private readonly ILogger<UserAppService> _logger;
-        
+
         public UserAppService(ProjectDbContext context,
           IMapper mapper,
           IPasswordHasher<Models.User> passwordHasher,
@@ -50,10 +50,29 @@ namespace KrzysztofSochaAPI.Services.User
         public void RegisterUser(RegisterUserDto input)
         {
             try
-            {                
+            {
                 var newUser = _mapper.Map<RegisterUserDto, Models.User>(input);
                 newUser.CreationTime = DateTime.Now;
                 newUser.Password = _passwordHasher.HashPassword(newUser, input.CreatePassword);
+                _context.Users.Add(newUser);
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"Błąd podczas dodawnia użytkownika: {ex.Message}");
+            }
+
+
+        }
+        public void RegisterUserManager(RegisterUserDto input)
+        {
+            try
+            {
+                var newUser = _mapper.Map<RegisterUserDto, Models.User>(input);
+                newUser.CreationTime = DateTime.Now;
+                newUser.Password = _passwordHasher.HashPassword(newUser, input.CreatePassword);
+                newUser.RoleId = 2;
                 _context.Users.Add(newUser);
                 _context.SaveChanges();
             }
@@ -69,7 +88,7 @@ namespace KrzysztofSochaAPI.Services.User
         {
             var user = _context.Users
                 .Include(u => u.Role)
-                .FirstOrDefault(u => u.Email == input.Email && u.IsDeleted ==false);
+                .FirstOrDefault(u => u.Email == input.Email && u.IsDeleted == false);
 
             if (user is null)
             {
@@ -182,7 +201,7 @@ namespace KrzysztofSochaAPI.Services.User
                 user.DeletionTime = DateTime.Now;
                 user.DeleterUserId = _userContextAppService.GetUserId;
                 user.IsDeleted = true;
-                user.IsActive = false;               
+                user.IsActive = false;
 
                 _context.SaveChanges();
                 _logger.LogWarning($"Użytkownik o numerze Id: {_userContextAppService.GetUserId} pomyślnie usunął użytkownika o indyfikatorze: {id}");
@@ -226,8 +245,8 @@ namespace KrzysztofSochaAPI.Services.User
 
             if (user is null)
                 throw new NotFoundException("Nie istnieje taki użytkownik");
-            var IsActualPassword= _passwordHasher.VerifyHashedPassword(user, user.Password,input.ActualPassword);
-            if (IsActualPassword==PasswordVerificationResult.Failed)
+            var IsActualPassword = _passwordHasher.VerifyHashedPassword(user, user.Password, input.ActualPassword);
+            if (IsActualPassword == PasswordVerificationResult.Failed)
                 throw new Exception("Niepoprawne hasło");
             try
             {
