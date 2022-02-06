@@ -19,6 +19,8 @@ namespace KrzysztofSochaAPI.Models
         public bool IsAvailability { get; set; } = true;
         [Required]
         public decimal Price { get; set; }
+
+        public DateTime CreationTime { get; set; }
         public virtual List<Image> Images { get; set; }
         public virtual List<OrderClothes> Orders { get; set; }
 

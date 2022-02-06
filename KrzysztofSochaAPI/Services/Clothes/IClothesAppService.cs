@@ -9,9 +9,12 @@ namespace KrzysztofSochaAPI.Services.Clothes
     public interface IClothesAppService
     {
 
-        void CreateClothes(AddClothesInputDto input);
-        void AddImageToClothes(AddImageToClothesInputDto input);
+        Task CreateClothesAsync(AddClothesInputDto input);
+        Task AddImageToClothesAsync(AddImageToClothesInputDto input);
+        void DeleteImageClothes(int id);
         void ArchiveClothes(int id);
         void UpdateClothes(int id, UpdateClothesInputDto input);
+        Task<GetClothesOutputDto> GetClothesByIdAsync(int id);
+        Task<List<GetClothesOutputDto>> GetClothesAsync(GetClothesInputDto input);
     }
 }

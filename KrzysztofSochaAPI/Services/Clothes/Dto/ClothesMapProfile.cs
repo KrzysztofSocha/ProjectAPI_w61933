@@ -12,6 +12,8 @@ namespace KrzysztofSochaAPI.Services.Clothes.Dto
         {
             CreateMap<AddClothesInputDto, Models.Clothes>();
             CreateMap<UpdateClothesInputDto, Models.Clothes>();
+            CreateMap< Models.Clothes,GetClothesOutputDto>();
+            CreateMap< Models.Image,GetImageOutputDto>();
         }
     }
 }
