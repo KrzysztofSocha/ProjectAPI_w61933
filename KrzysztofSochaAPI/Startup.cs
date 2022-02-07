@@ -27,6 +27,8 @@ using System.Threading.Tasks;
 using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using KrzysztofSochaAPI.Services.ShoppingCart;
+using KrzysztofSochaAPI.Services.Order;
 
 namespace KrzysztofSochaAPI
 {
@@ -71,6 +73,8 @@ namespace KrzysztofSochaAPI
             services.AddAutoMapper(this.GetType().Assembly);
             services.AddScoped<IUserAppService, UserAppService>();
             services.AddScoped<IClothesAppService, ClothesAppService>();
+            services.AddScoped<IShoppingCartAppService, ShoppingCartAppService>();
+            services.AddScoped<IOrderAppService, OrderAppService>();
             services.AddScoped<ErrorHandlingMiddleware>();
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
@@ -88,7 +92,7 @@ namespace KrzysztofSochaAPI
                     Name = "JWT Authentication",
                     In = ParameterLocation.Header,
                     Type = SecuritySchemeType.Http,
-                    Description = "Put **_ONLY_** your JWT Bearer token on textbox below!",
+                    Description = "Put **_ONLY_** JWT Bearer token",
 
                     Reference = new OpenApiReference
                     {

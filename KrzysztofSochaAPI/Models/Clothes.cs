@@ -10,6 +10,8 @@ namespace KrzysztofSochaAPI.Models
     public class Clothes
     {
         public int Id { get; set; }
+        [Required]
+        public string  Name { get; set; }
         public string Description { get; set; }
         [Required]
         public SexType Sex { get; set; }

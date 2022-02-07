@@ -10,6 +10,7 @@ namespace KrzysztofSochaAPI.Services.Clothes.Dto
     public class GetClothesOutputDto
     {
         public int Id { get; set; }
+        public string Name { get; set; }
         public string Description { get; set; }
        
         public SexType Sex { get; set; }

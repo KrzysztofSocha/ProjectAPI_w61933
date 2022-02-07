@@ -8,8 +8,7 @@ namespace KrzysztofSochaAPI.Services.Clothes.Dto
 {
     public class GetClothesInputDto
     {
-        public SexType Sex { get; set; }
-        
+        public SexType Sex { get; set; }        
         public ClothCategory Category { get; set; }
         public int MaxPrice { get; set; }
         public int MinPrice { get; set; }

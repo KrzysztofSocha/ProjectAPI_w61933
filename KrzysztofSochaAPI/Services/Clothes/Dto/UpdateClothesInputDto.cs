@@ -8,7 +8,7 @@ namespace KrzysztofSochaAPI.Services.Clothes.Dto
 {
     public class UpdateClothesInputDto
     {
-       
+        public string Name { get; set; }
         public string Description { get; set; }
         
         public SexType Sex { get; set; }
