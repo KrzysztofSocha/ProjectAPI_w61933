@@ -22,19 +22,18 @@ namespace KrzysztofSochaAPI.Context
         public DbSet<Shop> Shops { get; set; }
         public DbSet<ShoppingCartItem> ShoppingCartItems { get; set; }
         public DbSet<OrderClothes> OrderClothes { get; set; }
+        public DbSet<Delivery> Deliveries { get; set; }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            
-            modelBuilder.Entity<Order>()
-                .Property(o => o.DeliveryPrice)
+            modelBuilder.Entity<Delivery>()
+                .Property(c => c.Price)
                 .HasColumnType("decimal(18,2)");
 
-            modelBuilder.Entity<Order>()
-                .Property(o => o.ClothesAmount)
-                .HasColumnType("decimal(18,2)");
+            modelBuilder.Entity<Payment>()
+               .Property(c => c.Amount)
+               .HasColumnType("decimal(18,2)");
 
-            
             modelBuilder.Entity<Clothes>()
                 .Property(c => c.Price)
                 .HasColumnType("decimal(18,2)");

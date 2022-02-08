@@ -34,7 +34,12 @@ namespace KrzysztofSochaAPI
                     _context.Users.Add(admin);
                     _context.SaveChanges();
                 }
-
+                if (!_context.Deliveries.Any())
+                {
+                    var deliveries = GetDeliveries();
+                    _context.Deliveries.AddRange(deliveries);
+                    _context.SaveChanges();
+                }
 
             }
         }
@@ -45,16 +50,16 @@ namespace KrzysztofSochaAPI
             var admin = new User()
             {
                 CreationTime = DateTime.Now,
-                Email="admin@example.com",
-                DateOfBirth=new DateTime(1999,01,01),
-                Name="Admin",
-                Surname="",
-                Phone="",
-                RoleId=3,
-                
-                
+                Email = "admin@example.com",
+                DateOfBirth = new DateTime(1999, 01, 01),
+                Name = "Admin",
+                Surname = "",
+                Phone = "",
+                RoleId = 3,
+
+
             };
-            admin.Password = _passwordHasher.HashPassword(admin,examplePassword);
+            admin.Password = _passwordHasher.HashPassword(admin, examplePassword);
             return admin;
         }
 
@@ -77,6 +82,29 @@ namespace KrzysztofSochaAPI
             };
 
             return roles;
+        }
+        private IEnumerable<Delivery> GetDeliveries()
+        {
+            var deliveries = new List<Delivery>()
+            {
+                new Delivery()
+                {
+                   Type=Enums.DeliveryType.ToShop,
+                   Price=0
+                },
+                new Delivery()
+                {
+                    Type=Enums.DeliveryType.ToHouse,
+                    Price=(decimal)16.99
+                },
+                new Delivery()
+                {
+                    Type=Enums.DeliveryType.ToParcelLocker,
+                    Price=(decimal)7.99
+                },
+            };
+
+            return deliveries;
         }
     }
 }

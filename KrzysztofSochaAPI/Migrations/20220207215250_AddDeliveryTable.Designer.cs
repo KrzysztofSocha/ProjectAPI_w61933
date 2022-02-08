@@ -4,14 +4,16 @@ using KrzysztofSochaAPI.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace KrzysztofSochaAPI.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    partial class ProjectDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220207215250_AddDeliveryTable")]
+    partial class AddDeliveryTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -144,12 +146,6 @@ namespace KrzysztofSochaAPI.Migrations
                     b.Property<int>("DeliveryId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("FreeDelivery")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("PaymentId")
-                        .HasColumnType("int");
-
                     b.Property<int>("PurchaserId")
                         .HasColumnType("int");
 
@@ -165,9 +161,6 @@ namespace KrzysztofSochaAPI.Migrations
                         .IsUnique();
 
                     b.HasIndex("DeliveryId")
-                        .IsUnique();
-
-                    b.HasIndex("PaymentId")
                         .IsUnique();
 
                     b.HasIndex("PurchaserId");
@@ -194,27 +187,6 @@ namespace KrzysztofSochaAPI.Migrations
                     b.HasIndex("OrderedClothesId");
 
                     b.ToTable("OrderClothes");
-                });
-
-            modelBuilder.Entity("KrzysztofSochaAPI.Models.Payment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("PaymentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Payment");
                 });
 
             modelBuilder.Entity("KrzysztofSochaAPI.Models.Role", b =>
@@ -377,12 +349,6 @@ namespace KrzysztofSochaAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("KrzysztofSochaAPI.Models.Payment", "Payment")
-                        .WithOne("Order")
-                        .HasForeignKey("KrzysztofSochaAPI.Models.Order", "PaymentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("KrzysztofSochaAPI.Models.User", "Purchaser")
                         .WithMany()
                         .HasForeignKey("PurchaserId")
@@ -392,8 +358,6 @@ namespace KrzysztofSochaAPI.Migrations
                     b.Navigation("Delivery");
 
                     b.Navigation("DeliveryAddress");
-
-                    b.Navigation("Payment");
 
                     b.Navigation("Purchaser");
                 });
@@ -498,11 +462,6 @@ namespace KrzysztofSochaAPI.Migrations
             modelBuilder.Entity("KrzysztofSochaAPI.Models.Order", b =>
                 {
                     b.Navigation("OrderedClothes");
-                });
-
-            modelBuilder.Entity("KrzysztofSochaAPI.Models.Payment", b =>
-                {
-                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("KrzysztofSochaAPI.Models.User", b =>

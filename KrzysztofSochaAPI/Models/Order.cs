@@ -14,13 +14,13 @@ namespace KrzysztofSochaAPI.Models
         public OrderStatus Status { get; set; }
         public int PurchaserId { get; set; }
         public virtual User Purchaser { get; set; }
-        public DeliveryType DeliveryType { get; set; }
         public virtual List<OrderClothes> OrderedClothes { get; set; }
-       
-        public decimal DeliveryPrice { get; set; }
-        public decimal ClothesAmount { get; set; }
+        public int DeliveryId { get; set; }
+        public Delivery Delivery { get; set; }
+        public bool FreeDelivery { get; set; } = false;
         public int DeliveryAddressId { get; set; }
         public virtual Address DeliveryAddress { get; set; }
-
+        public int PaymentId { get; set; }
+        public virtual Payment Payment { get; set; }
     }
 }

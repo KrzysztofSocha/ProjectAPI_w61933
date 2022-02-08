@@ -64,6 +64,9 @@ namespace KrzysztofSochaAPI.Services.Clothes
             try
             {
                 clothes.IsAvailability = false;
+                    //usuwanie z koszyków użytykowników niedostępnego ubrania
+                var itemToDelete =  _context.ShoppingCartItems.Where(x => x.ClothesId==id);
+                _context.ShoppingCartItems.RemoveRange(itemToDelete);
                 _context.SaveChanges();
             }
             catch (Exception ex)
