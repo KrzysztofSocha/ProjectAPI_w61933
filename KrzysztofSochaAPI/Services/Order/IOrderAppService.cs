@@ -8,10 +8,11 @@ namespace KrzysztofSochaAPI.Services.Order
 {
     public interface IOrderAppService
     {
-        Task CreateOrderAsync(CreateOrderInputDto input);
+        Task<CreateOrderOutputDto> CreateOrderAsync(CreateOrderInputDto input);
         Task CancelOrderAsync(int orderId);
         Task <GetOrderOutputDto>GetOrderByIdAsync(int orderId);
-        Task<List<GetOrderOutputDto>> GetOrdersAsync();
-
+        Task<List<GetManyOrdersOutputDto>> GetUserOrdersAsync();
+        Task ChangeOrderStatusAsync(ChangeOrderStatusInputDto input);
+       
     }
 }

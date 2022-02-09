@@ -4,14 +4,16 @@ using KrzysztofSochaAPI.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace KrzysztofSochaAPI.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    partial class ProjectDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220209183938_AddPaymentStatusProperty")]
+    partial class AddPaymentStatusProperty
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -161,9 +163,11 @@ namespace KrzysztofSochaAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DeliveryAddressId");
+                    b.HasIndex("DeliveryAddressId")
+                        .IsUnique();
 
-                    b.HasIndex("DeliveryId");
+                    b.HasIndex("DeliveryId")
+                        .IsUnique();
 
                     b.HasIndex("PaymentId")
                         .IsUnique();
@@ -204,7 +208,7 @@ namespace KrzysztofSochaAPI.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime?>("PaymentDate")
+                    b.Property<DateTime>("PaymentDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
@@ -367,14 +371,14 @@ namespace KrzysztofSochaAPI.Migrations
             modelBuilder.Entity("KrzysztofSochaAPI.Models.Order", b =>
                 {
                     b.HasOne("KrzysztofSochaAPI.Models.Address", "DeliveryAddress")
-                        .WithMany()
-                        .HasForeignKey("DeliveryAddressId")
+                        .WithOne("Order")
+                        .HasForeignKey("KrzysztofSochaAPI.Models.Order", "DeliveryAddressId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("KrzysztofSochaAPI.Models.Delivery", "Delivery")
-                        .WithMany()
-                        .HasForeignKey("DeliveryId")
+                        .WithOne("Order")
+                        .HasForeignKey("KrzysztofSochaAPI.Models.Order", "DeliveryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -475,6 +479,8 @@ namespace KrzysztofSochaAPI.Migrations
 
             modelBuilder.Entity("KrzysztofSochaAPI.Models.Address", b =>
                 {
+                    b.Navigation("Order");
+
                     b.Navigation("Shop");
 
                     b.Navigation("User");
@@ -487,6 +493,11 @@ namespace KrzysztofSochaAPI.Migrations
                     b.Navigation("Orders");
 
                     b.Navigation("UserBuyers");
+                });
+
+            modelBuilder.Entity("KrzysztofSochaAPI.Models.Delivery", b =>
+                {
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("KrzysztofSochaAPI.Models.Order", b =>

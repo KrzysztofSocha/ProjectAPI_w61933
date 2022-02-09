@@ -9,8 +9,9 @@ namespace KrzysztofSochaAPI.Models
     public class Payment
     {
         public int Id { get; set; }
-        public DateTime PaymentDate { get; set; }
+        public DateTime? PaymentDate { get; set; }
         public PaymentType Type { get; set; }
+        public PaymentStatus Status { get; set; }
         public decimal Amount { get; set; }
         public virtual Order Order { get; set; }
 

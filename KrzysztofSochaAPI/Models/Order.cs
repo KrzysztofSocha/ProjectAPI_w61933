@@ -14,9 +14,9 @@ namespace KrzysztofSochaAPI.Models
         public OrderStatus Status { get; set; }
         public int PurchaserId { get; set; }
         public virtual User Purchaser { get; set; }
-        public virtual List<OrderClothes> OrderedClothes { get; set; }
+        public virtual List<OrderClothes> OrderedClothesList { get; set; }
         public int DeliveryId { get; set; }
-        public Delivery Delivery { get; set; }
+        public virtual Delivery Delivery { get; set; }
         public bool FreeDelivery { get; set; } = false;
         public int DeliveryAddressId { get; set; }
         public virtual Address DeliveryAddress { get; set; }

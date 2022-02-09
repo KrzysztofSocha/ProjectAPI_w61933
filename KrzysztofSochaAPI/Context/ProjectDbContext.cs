@@ -57,11 +57,10 @@ namespace KrzysztofSochaAPI.Context
                 .HasForeignKey(oc => oc.OrderedClothesId);
             modelBuilder.Entity<OrderClothes>()
                .HasOne(oc => oc.Order)
-               .WithMany(o => o.OrderedClothes)
+               .WithMany(o => o.OrderedClothesList)
                .HasForeignKey(oc => oc.OrderId);
 
-
-
+           
 
 
 
@@ -69,9 +68,6 @@ namespace KrzysztofSochaAPI.Context
               .HasOne(c => c.Manager)
               .WithOne(o => o.Shop);
 
-            modelBuilder.Entity<Order>()
-             .HasOne(c => c.DeliveryAddress)
-             .WithOne(o => o.Order);
 
             modelBuilder.Entity<User>()
              .HasOne(c => c.Address)
