@@ -11,7 +11,7 @@ namespace KrzysztofSochaAPI.Services.Order
         Task<CreateOrderOutputDto> CreateOrderAsync(CreateOrderInputDto input);
         Task CancelOrderAsync(int orderId);
         Task <GetOrderOutputDto>GetOrderByIdAsync(int orderId);
-        Task<List<GetManyOrdersOutputDto>> GetUserOrdersAsync();
+        Task<List<GetManyOrdersOutputDto>> GetUserOrders();
         Task ChangeOrderStatusAsync(ChangeOrderStatusInputDto input);
        
     }

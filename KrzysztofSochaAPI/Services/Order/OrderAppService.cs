@@ -34,14 +34,42 @@ namespace KrzysztofSochaAPI.Services.Order
         }
 
        
-        public Task CancelOrderAsync(int orderId)
-        {
-            throw new NotImplementedException();
+        public async Task CancelOrderAsync(int orderId)
+        {            
+            var order = await _context.Orders.FirstOrDefaultAsync(x => x.Id == orderId);
+            if (order is null)
+                throw new NotFoundException("Nie istnieje zamówinie o podanym numerze id");
+            if (order.Status != OrderStatus.InPreparation || order.PurchaserId != _userContextAppService.GetUserId)
+                throw new BadRequestException("Nie możesz anulować tego zamówienia");
+            try
+            {
+                order.Status = OrderStatus.Canceled;
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Błąd podczas anulowania zamówienia {ex.Message}");
+            }
         }
 
-        public Task ChangeOrderStatusAsync(ChangeOrderStatusInputDto input)
+        public async Task ChangeOrderStatusAsync(ChangeOrderStatusInputDto input)
         {
-            throw new NotImplementedException();
+            var order = await _context.Orders.FirstOrDefaultAsync(x => x.Id == input.OrderId);
+            if (order is null)
+                throw new NotFoundException("Nie istnieje zamówinie o podanym numerze id");
+            if(order.Status==OrderStatus.Received)
+                throw new BadRequestException("Nie możesz zmienić statusu tego zamówienia");
+            try
+            {
+                if (input.Status == OrderStatus.Received)
+                    order.ReceivedTime = DateTime.Now;
+                order.Status = input.Status;
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Błąd podczas modyfikacji statusu zamówienia {ex.Message}");
+            }
         }
 
         public async Task<CreateOrderOutputDto> CreateOrderAsync(CreateOrderInputDto input)
@@ -159,7 +187,7 @@ namespace KrzysztofSochaAPI.Services.Order
             }
         }
 
-        public async Task<List<GetManyOrdersOutputDto>> GetUserOrdersAsync()
+        public  Task<List<GetManyOrdersOutputDto>> GetUserOrders()
         {
             var userOrders =  _context.Orders.Include(x => x.Payment)               
                .Include(x => x.Purchaser)
@@ -183,7 +211,7 @@ namespace KrzysztofSochaAPI.Services.Order
                     outputItem.ClothesAmount = sumOrderClothes;
                     outputItem.TotalAmount = sumOrderClothes + outputItem.DeliveryPrice;
                 }
-                return output;
+                return Task.FromResult(output);
             }
             catch (Exception ex)
             {

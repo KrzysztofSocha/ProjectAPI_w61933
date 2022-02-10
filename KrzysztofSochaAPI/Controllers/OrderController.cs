@@ -20,24 +20,38 @@ namespace KrzysztofSochaAPI.Controllers
         }
         [HttpPost("create")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult> Create([FromForm]CreateOrderInputDto input)
+        public async Task<ActionResult> Create([FromForm] CreateOrderInputDto input)
         {
-            var result =await _orderAppService.CreateOrderAsync(input);
+            var result = await _orderAppService.CreateOrderAsync(input);
             return Ok(result);
         }
         [HttpGet("get/{orderId}")]
         //[Authorize(Roles = "User")]
         public async Task<ActionResult> GetById([FromRoute] int orderId)
         {
-            var result =await _orderAppService.GetOrderByIdAsync(orderId);
+            var result = await _orderAppService.GetOrderByIdAsync(orderId);
             return Ok(result);
         }
-        [HttpGet("get")]
+        [HttpGet("get/all")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult> Get()
+        public ActionResult Get()
         {
-            var result = await _orderAppService.GetUserOrdersAsync();
+            var result = _orderAppService.GetUserOrders();
             return Ok(result);
+        }
+        [HttpPut("change/status")]
+        [Authorize(Roles = "Manager, Admin")]
+        public async Task<ActionResult> ChangeStatus([FromBody] ChangeOrderStatusInputDto input )
+        {
+             await _orderAppService.ChangeOrderStatusAsync(input);
+            return Ok();
+        }
+        [HttpDelete("cancel/{orderId}")]
+        [Authorize(Roles = "User")]
+        public async Task <ActionResult> Cancel([FromRoute] int orderId)
+        {
+            await _orderAppService.CancelOrderAsync(orderId);
+            return Ok();
         }
     }
 }
