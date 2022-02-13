@@ -12,7 +12,6 @@ using KrzysztofSochaAPI.Services.UserContext;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -29,6 +28,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using KrzysztofSochaAPI.Services.ShoppingCart;
 using KrzysztofSochaAPI.Services.Order;
+using KrzysztofSochaAPI.Services.Shop;
 
 namespace KrzysztofSochaAPI
 {
@@ -75,6 +75,7 @@ namespace KrzysztofSochaAPI
             services.AddScoped<IClothesAppService, ClothesAppService>();
             services.AddScoped<IShoppingCartAppService, ShoppingCartAppService>();
             services.AddScoped<IOrderAppService, OrderAppService>();
+            services.AddScoped<IShopAppService, ShopAppService>();
             services.AddScoped<ErrorHandlingMiddleware>();
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();

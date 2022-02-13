@@ -20,7 +20,6 @@ namespace KrzysztofSochaAPI.Services.Order
         private readonly ProjectDbContext _context;
         private readonly IMapper _mapper;
         private readonly IShoppingCartAppService _shoppingCartAppService;
-
         private readonly IUserContextAppService _userContextAppService;
         public OrderAppService(ProjectDbContext context,
           IMapper mapper,
