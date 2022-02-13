@@ -74,6 +74,7 @@ namespace KrzysztofSochaAPI.Services.Order
 
         public async Task<CreateOrderOutputDto> CreateOrderAsync(CreateOrderInputDto input)
         {
+            #region Context
             var user = await _context.Users
                 .Include(x => x.Address)
                 .Include(x => x.ClothesToBuy)
@@ -87,6 +88,7 @@ namespace KrzysztofSochaAPI.Services.Order
                 throw new NotFoundException("Aby złożyć zamówienie najpierw dodaj ubranie do koszyka");
 
             var delivery = await _context.Deliveries.FirstOrDefaultAsync(x => x.Type == input.DeliveryType);
+            #endregion
             try
             {
                 var newOrder = new Models.Order()
@@ -108,6 +110,7 @@ namespace KrzysztofSochaAPI.Services.Order
                 }
                 newOrder.OrderedClothesList=orderedClothes;
                 #endregion
+                #region CalculateOrderPrice
                 var output = new CreateOrderOutputDto();
                 output.User = _mapper.Map<GetUserOrderDto>(user);
                 if (sum > 150)
@@ -119,27 +122,44 @@ namespace KrzysztofSochaAPI.Services.Order
                     output.DeliveryPrice = delivery.Price;
                 output.ClothesAmount = sum;
                 output.TotalAmount = output.DeliveryPrice + output.ClothesAmount;
-                #region CreateOrderAddress
-                if (input.CustomDeliveryAddress)
-                {
-                    var customAddress = _mapper.Map<Models.Address>(input.DeliveryAddress);
-                    await _context.Addresses.AddAsync(customAddress);
-                    newOrder.DeliveryAddress = customAddress;
-                    output.User.AddressDelivery = input.DeliveryAddress;
-                }
-                else
-                {
-                    newOrder.DeliveryAddress = user.Address;
-                    output.User.AddressDelivery = _mapper.Map<AddressDto>(user.Address);
-                }
                 #endregion
+                #region CreateOrderAddress
+                switch (input.DeliveryType)
+                {
+                    case DeliveryType.ToShop:
+                        var shop = await _context.Shops.FirstOrDefaultAsync(x=>x.Id==input.TargetShopId);
+                        newOrder.DeliveryAddress = shop.Address;
+                        output.User.AddressDelivery = _mapper.Map<AddressDto>(shop.Address);
+                        break;
+                    case DeliveryType.ToHouse:
+                        if (input.CustomDeliveryAddress)
+                        {
+                            var customAddress = _mapper.Map<Models.Address>(input.DeliveryAddress);
+                            await _context.Addresses.AddAsync(customAddress);
+                            newOrder.DeliveryAddress = customAddress;
+                            output.User.AddressDelivery = input.DeliveryAddress;
+                        }
+                        else
+                        {
+                            newOrder.DeliveryAddress = user.Address;
+                            output.User.AddressDelivery = _mapper.Map<AddressDto>(user.Address);
+                        }
+                        break;
+                    case DeliveryType.ToParcelLocker:
+                        break;
+                    default:
+                        break;
+                }
+
+                #endregion
+                #region RegisterPayment
                 newOrder.Payment = new Models.Payment()
                 {
                     Amount = output.TotalAmount,
                     Status = PaymentStatus.Waiting,
                     Type = input.PaymentType
                 };
-
+                #endregion
                 await _context.Orders.AddAsync(newOrder);
                 await _context.SaveChangesAsync();
                 await _shoppingCartAppService.ClearShopingCartListAsync();
@@ -217,6 +237,53 @@ namespace KrzysztofSochaAPI.Services.Order
             {
 
                 throw new Exception($"Błąd podczas pobiernia zamówień użytkownika: {ex.Message}");
+            }
+        }
+
+        public async Task PayForOrderAsync(PaymentDto input)
+        {
+            var order = await _context.Orders
+                .Include(x=>x.Payment)
+                .FirstOrDefaultAsync(x => x.Id == input.OrderId && x.Payment.Status == PaymentStatus.Waiting);
+            if (order is null)
+                throw new NotFoundException("Nie znaleziono zamówienia nieopłaconego");
+            try
+            {
+                switch (order.Payment.Type)
+                {
+                    #region Blik
+                    case PaymentType.Blik:                        
+                        if (!System.Text.RegularExpressions.Regex.IsMatch(input.BlikCode, "^[0-9]*$"))
+                            throw new BadRequestException("Niepoprawna wartość kodu Blik");
+                        order.Payment.Status = PaymentStatus.Registered;
+                        await _context.SaveChangesAsync();
+                        await Task.Delay(5000);//Możliwość dodania mechanizmu związanego z płatnością blik
+                        order.Payment.PaymentDate = DateTime.Now;
+                        order.Payment.Status = PaymentStatus.Completed;
+                        await _context.SaveChangesAsync();
+                        break;
+                    #endregion
+                    #region Bank
+                    case PaymentType.Bank:
+                        if(!String.IsNullOrEmpty(input.BankName))
+                            throw new BadRequestException("Niepoprawna nazwa banku");
+                        order.Payment.Status = PaymentStatus.Registered;
+                        await _context.SaveChangesAsync();
+                        await Task.Delay(5000);//Możliwość dodania mechanizmu związanego z płatnością za pomocą aplikacji bankowej
+                        order.Payment.PaymentDate = DateTime.Now;
+                        order.Payment.Status = PaymentStatus.Completed;
+                        await _context.SaveChangesAsync();
+                        break;
+                    #endregion
+                    default:
+                        throw new BadRequestException("Niepoprawna forma płatności");
+                        
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"Błąd podczas dokonywania płatności: {ex.Message}");
             }
         }
     }

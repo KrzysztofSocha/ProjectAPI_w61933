@@ -13,6 +13,7 @@ namespace KrzysztofSochaAPI.Services.Order
         Task <GetOrderOutputDto>GetOrderByIdAsync(int orderId);
         Task<List<GetManyOrdersOutputDto>> GetUserOrders();
         Task ChangeOrderStatusAsync(ChangeOrderStatusInputDto input);
+        Task PayForOrderAsync(PaymentDto input);
        
     }
 }

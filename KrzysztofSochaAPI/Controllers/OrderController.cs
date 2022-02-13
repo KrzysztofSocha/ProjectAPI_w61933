@@ -32,7 +32,7 @@ namespace KrzysztofSochaAPI.Controllers
             var result = await _orderAppService.GetOrderByIdAsync(orderId);
             return Ok(result);
         }
-        [HttpGet("get/all")]
+        [HttpGet("get/all/user/orders")]
         [Authorize(Roles = "User")]
         public ActionResult Get()
         {
@@ -51,6 +51,13 @@ namespace KrzysztofSochaAPI.Controllers
         public async Task <ActionResult> Cancel([FromRoute] int orderId)
         {
             await _orderAppService.CancelOrderAsync(orderId);
+            return Ok();
+        }
+        [HttpPut("payment")]
+        [Authorize(Roles = "User")]
+        public async Task<ActionResult> Payment([FromBody] PaymentDto input)
+        {
+            await _orderAppService.PayForOrderAsync(input);
             return Ok();
         }
     }

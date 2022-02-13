@@ -8,6 +8,6 @@ namespace KrzysztofSochaAPI.Enums
     public enum PaymentType
     {
         Blik,
-        Credit
+        Bank
     }
 }
