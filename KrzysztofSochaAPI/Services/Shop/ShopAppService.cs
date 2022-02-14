@@ -98,7 +98,8 @@ namespace KrzysztofSochaAPI.Services.Shop
             try
             {
                 var shop = await _context.Shops.Include(x => x.Address)
-                    .Include(x=>x.Manager)                    
+                    .Include(x=>x.Manager)
+                    .ThenInclude(x=>x.Address)                    
                     .FirstOrDefaultAsync(x => x.Id == shopId);
                 var output = _mapper.Map<GetShopFullInformationsDto>(shop);
                 return output;

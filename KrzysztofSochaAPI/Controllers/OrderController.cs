@@ -25,8 +25,7 @@ namespace KrzysztofSochaAPI.Controllers
             var result = await _orderAppService.CreateOrderAsync(input);
             return Ok(result);
         }
-        [HttpGet("get/{orderId}")]
-        //[Authorize(Roles = "User")]
+        [HttpGet("get/{orderId}")]        
         public async Task<ActionResult> GetById([FromRoute] int orderId)
         {
             var result = await _orderAppService.GetOrderByIdAsync(orderId);
@@ -53,7 +52,7 @@ namespace KrzysztofSochaAPI.Controllers
             await _orderAppService.CancelOrderAsync(orderId);
             return Ok();
         }
-        [HttpPut("payment")]
+        [HttpPost("payment")]
         [Authorize(Roles = "User")]
         public async Task<ActionResult> Payment([FromBody] PaymentDto input)
         {

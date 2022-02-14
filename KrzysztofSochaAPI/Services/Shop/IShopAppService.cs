@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace KrzysztofSochaAPI.Services.Shop
 {
-    interface IShopAppService
+    public interface IShopAppService
     {
         Task CreateShopAsync(CreateOrUpdateShopDto input);
         Task UpdateShopAsync(int shopId, CreateOrUpdateShopDto input);
