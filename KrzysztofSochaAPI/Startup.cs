@@ -65,6 +65,7 @@ namespace KrzysztofSochaAPI
             });
             services.AddAuthorization();
             services.AddScoped<IAuthorizationHandler, ResourceOperationRequirementHandler>();
+            services.AddScoped<IAuthorizationHandler, ShopOperationRequirementHandler>();
             services.AddControllers().AddFluentValidation();
             services.AddRazorPages();
             services.AddDbContext<ProjectDbContext>

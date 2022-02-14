@@ -8,10 +8,11 @@ namespace KrzysztofSochaAPI.Services.Shop
 {
     interface IShopAppService
     {
-        Task CreateShopAsync(CreateShopDto input);
-        Task UpdateShopAsync(UpdateShopDto input);
+        Task CreateShopAsync(CreateOrUpdateShopDto input);
+        Task UpdateShopAsync(int shopId, CreateOrUpdateShopDto input);
         Task<GetShopOutputDto> GetShopByIdAsync(int shopId);
-        Task<List<GetManyShopsDto>> GetShopsAsync();
-        Task DelteShopAsync(int shopId);
+        Task<GetShopFullInformationsDto> GetShopFullInformationsAsync(int shopId);
+        Task<List<GetShopOutputDto>> GetShopsAsync();
+        Task DeleteShopAsync(int shopId);
     }
 }

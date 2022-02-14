@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace KrzysztofSochaAPI.Services.Shop.Dto
 {
-    public class GetShopOutputDto
-    {
-        public int Id { get; set; }
+    public class CreateOrUpdateShopDto
+    {       
         public string Name { get; set; }
         public AddressDto Address { get; set; }
     }

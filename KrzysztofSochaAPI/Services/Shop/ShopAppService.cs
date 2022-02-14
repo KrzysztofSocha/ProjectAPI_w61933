@@ -1,7 +1,11 @@
 ﻿using AutoMapper;
+using KrzysztofSochaAPI.Authorization;
 using KrzysztofSochaAPI.Context;
+using KrzysztofSochaAPI.Exceptions;
 using KrzysztofSochaAPI.Services.Shop.Dto;
 using KrzysztofSochaAPI.Services.UserContext;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,40 +19,133 @@ namespace KrzysztofSochaAPI.Services.Shop
         private readonly ProjectDbContext _context;
         private readonly IMapper _mapper;
         private readonly IUserContextAppService _userContextAppService;
-        
+        private readonly IAuthorizationService _authorizationService;
 
 
         public ShopAppService(ProjectDbContext context,
           IMapper mapper,
-          IUserContextAppService userContextAppService         )
+          IUserContextAppService userContextAppService,
+          IAuthorizationService authorizationService)
         {
             _context = context;
             _mapper = mapper;
             _userContextAppService = userContextAppService;
+            _authorizationService = authorizationService;
         }
-        public Task CreateShopAsync(CreateShopDto input)
+        public async Task CreateShopAsync(CreateOrUpdateShopDto input)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var newShop = _mapper.Map<CreateOrUpdateShopDto, Models.Shop>(input);
+                newShop.ManagerId = (int)_userContextAppService.GetUserId;
+                var authorizationResult = await _authorizationService.AuthorizeAsync(_userContextAppService.User,
+                    newShop,
+                    new ResourceOperationRequirement(ResourceOperation.Create));
+                if (!authorizationResult.Succeeded)
+                {
+                    throw new ForbiddenException("Nie masz uprawnień do tej operacji.");
+                }
+                await _context.Shops.AddAsync(newShop);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"Błąd podczas dodwania sklepu: {ex.Message}");
+            }
+            
         }
 
-        public Task DelteShopAsync(int shopId)
+        public async Task DeleteShopAsync(int shopId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var shopToDelete = await _context.Shops.FirstOrDefaultAsync(x => x.Id == shopId);
+                var authorizationResult = await _authorizationService.AuthorizeAsync(_userContextAppService.User,
+                   shopToDelete,
+                   new ResourceOperationRequirement(ResourceOperation.Delete));
+                if (!authorizationResult.Succeeded)
+                {
+                    throw new ForbiddenException("Nie masz uprawnień do tej operacji.");
+                }
+                _context.Shops.Remove(shopToDelete);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"Błąd podczas usuwania sklepu: {ex.Message}");
+            }
         }
 
-        public Task<GetShopOutputDto> GetShopByIdAsync(int shopId)
-        {
-            throw new NotImplementedException();
+        public async Task<GetShopOutputDto> GetShopByIdAsync(int shopId)
+        {            
+            try
+            {
+                var shop = await _context.Shops.Include(x => x.Address).FirstOrDefaultAsync(x => x.Id == shopId);
+                var output = _mapper.Map<GetShopOutputDto>(shop);
+                return output;
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"Błąd podczas wyświetlania sklepu: {ex.Message}");
+            }
         }
 
-        public Task<List<GetManyShopsDto>> GetShopsAsync()
+        public async Task<GetShopFullInformationsDto> GetShopFullInformationsAsync(int shopId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var shop = await _context.Shops.Include(x => x.Address)
+                    .Include(x=>x.Manager)                    
+                    .FirstOrDefaultAsync(x => x.Id == shopId);
+                var output = _mapper.Map<GetShopFullInformationsDto>(shop);
+                return output;
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"Błąd podczas wyświetlania sklepu: {ex.Message}");
+            }
         }
 
-        public Task UpdateShopAsync(UpdateShopDto input)
+        public async Task<List<GetShopOutputDto>> GetShopsAsync()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var shops = await _context.Shops.Include(x => x.Address).ToListAsync();
+                var output = _mapper.Map <List<GetShopOutputDto>>(shops);
+                return output;
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"Błąd podczas wyświetlania sklepów: {ex.Message}");
+            }
+        }
+
+        public async Task UpdateShopAsync(int shopId,CreateOrUpdateShopDto input)
+        {
+            try
+            {
+
+                var shop = await _context.Shops.Include(x => x.Address).FirstOrDefaultAsync(x => x.Id == shopId);
+                var authorizationResult = await _authorizationService.AuthorizeAsync(_userContextAppService.User,
+                    shop,
+                    new ResourceOperationRequirement(ResourceOperation.Update));
+                if (!authorizationResult.Succeeded)
+                {
+                    throw new ForbiddenException("Nie masz uprawnień do tej operacji.");
+                }
+                shop = _mapper.Map(input, shop);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"Błąd podczas modyfikacji informacji o sklepie: {ex.Message}");
+            }
         }
     }
 }
