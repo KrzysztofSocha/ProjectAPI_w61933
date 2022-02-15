@@ -53,13 +53,15 @@ namespace KrzysztofSochaAPI.Services.Order
 
         public async Task ChangeOrderStatusAsync(ChangeOrderStatusInputDto input)
         {
-            var order = await _context.Orders.FirstOrDefaultAsync(x => x.Id == input.OrderId);
+            var order = await _context.Orders.Include(x=>x.Payment).FirstOrDefaultAsync(x => x.Id == input.OrderId);
             if (order is null)
                 throw new NotFoundException("Nie istnieje zamówinie o podanym numerze id");
             if(order.Status==OrderStatus.Received)
                 throw new BadRequestException("Nie możesz zmienić statusu tego zamówienia");
             try
             {
+                if (order.Payment.Status != PaymentStatus.Completed)
+                    new BadRequestException("Nie można dokonać zmiany stausu zamówienia jeżeli użytkownik nie zapłacił za zamówienie");
                 if (input.Status == OrderStatus.Received)
                     order.ReceivedTime = DateTime.Now;
                 order.Status = input.Status;
